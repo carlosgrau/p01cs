@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Tabla Multiplicar</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    </head>
+    <body>
+        </br>
+        <div class="container-fluid"> 
+            <form>
+                <div class="form-group">
+                    <label>Ancho</label>
+                    <input class="form-control" placeholder="Introduzca un número" id="ancho" name="ancho" maxlength="3">
+                    <div class="container-fluid" id="errorancho"> </div>
+                </div> 
+                <div class="form-group">
+                    <label>Alto</label> 
+                    <input class="form-control" placeholder="Introduzca un número" id="alto" name="alto" maxlength="3">
+                    <div class="container-fluid" id="erroralto"></div>
+                </div>
+                <div>
+                    <div class =" container">
+                        <button type="button" class="btn btn-primary" id="boton">Crear tabla</button>
+                    </div> 
+            </form> 
+            </br>
+            <div class="container-fluid" id="tabla">
+            </div>
+            <div class="container-fluid" id="error">
+            </div>
+
+    </body>
+
+    <script>
+        $(document).ready(function () {
+            function numeroBueno(str) {
+                return /^([1-9][0-9]*)$/.test(str);
+            }
+            $("#ancho").keyup(function () {
+                if ((numeroBueno($("#ancho").val())) && ($("#ancho").val() <= 100)) {
+                    $("#ancho").css("border-color", "green");
+
+                    if ((numeroBueno($("#alto").val())) && ($("#alto").val() <= 100)) {
+                        $("#boton").attr("disable", true);
+                    }
+                    ;
+                } else {
+                    $("#errorancho").attr("class", "alert alert-danger");
+                    $("#ancho").css("border-color", "red");
+                    $("#errorancho").empty().append("Introduzca números entre 1 y 101")
+                    $("#boton").attr("disable", true);
+                }
+            });
+            $("#alto").keyup(function () {
+                if ((numeroBueno($("#alto").val())) && ($("#alto").val() <= 100)) {
+                    $("#alto").css("border-color", "green");
+
+                    if ((numeroBueno($("#ancho").val())) && ($("#ancho").val() <= 100)) {
+                        $("#boton").attr("disable", true);
+                    }
+                    ;
+                } else {
+                    $("#erroralto").attr("class", "alert alert-danger");
+                    $("#erroralto").empty().append("Introduzca números entre 1 y 101")
+                    $("#alto").css("border-color", "red");
+
+                    $("#boton").attr("disable", true);
+                }
+            });
+            $("#boton").click(function () {
+                var codigoError = '';
+                var error = '';
+                var ancho = $("#ancho").val();
+                var alto = $("#alto").val();
+                if ((!ancho.toString().trim().match("/d[0-9]*")) || (!alto.toString().trim().match("/d[0-9]*"))) {
+                    var url = "table?ancho=" + ancho + "&alto=" + alto;
+                    $.ajax({
+                        dataType: "json",
+                        url: url,
+                        cache: false,
+                        menthod: "GET",
+                        success: function (data) {
+                            var tabla = "<table class='table table-dark'>";
+                            for (i = 0; i < data.length; i++) {
+                                tabla += "<tr>";
+                                for (j = 0; j < data[i].array.length; j++) {
+                                    tabla += "<td>" + data[i].array[j].res + "</td>";
+                                }
+                                tabla += "</tr>";
+                            }
+                            tabla += "</table>";
+                            $("#tabla").empty().append(tabla);
+                            $("#error").empty();
+                        },
+                        error: function (data) {
+                            if (ancho.trim() <= 0 || alto.toString().trim() <= 0) {
+                                codigoError += "No puedo contruir la tabla sin algun número es 0.";
+                            } else if (ancho.trim().match("^[a-zA-Z ]*$")) {
+                                codigoError += "</br>El valor ANCHO introducido debe ser un número.";
+                            }
+                            ;
+                            if (alto.trim().match("^[a-zA-Z ]*$")) {
+                                codigoError += "</br>El valor ALTO introducido debe ser un numero.";
+                            }
+                            ;
+                            error += "<div class=\"alert alert-danger\">";
+                            error += "<strong>Error! " + codigoError + " </strong>";
+                            error += "</div>";
+                            $("#error").empty().append(error);
+                            $("#tabla").empty();
+                        }
+
+                    });
+                }
+            });
+        });
+    </script>
+</html>
